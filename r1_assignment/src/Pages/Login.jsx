@@ -13,16 +13,45 @@ import {
   Image,
 } from '@chakra-ui/react'
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom';
 
 export default function Login() {
     const [email,setEmail]=useState("");
-    const [pass,setPass]=useState("")
+    const [pass,setPass]=useState("");
+    const navigate = useNavigate();
+
+
+    const handleLogin = () => {
+
+        const loginData = {
+            email,
+            password:pass
+        };
+      
+        fetch('https://rm-mock4-server.onrender.com/users')
+        .then((response) => response.json())
+        .then((users) => {
+          for(let i=0;i<users.length;i++){
+            if(users[i]["email"]==loginData['email'] && users[i]["password"]==loginData["password"]){
+                localStorage.setItem('user_mail', loginData.email);
+                navigate('/dashboard')
+                alert("Login Successfull!!")
+            }else{
+                alert("Please chcek your credentails")
+            }
+          }      
+          })
+          .catch((error) => {
+            console.error('Error while logging in:', error);
+          });
+      };
+      
 
   return (
     <Stack minH={'100vh'} direction={{ base: 'column', md: 'row' }}>
       <Flex p={8} flex={1} align={'center'} justify={'center'}>
         <Stack spacing={4} w={'full'} maxW={'md'}>
-          <Heading fontSize={'2xl'}>Sign in to your account</Heading>
+          <Heading fontSize={'2xl'}>Log in to your account</Heading>
           <FormControl id="email">
             <FormLabel>Email address</FormLabel>
             <Input onChange={(e)=>setEmail(e.target.value)} type="email" />
@@ -39,9 +68,11 @@ export default function Login() {
               <Checkbox>Remember me</Checkbox>
               <Text color={'blue.500'}>Forgot password?</Text>
             </Stack>
-            <Button colorScheme={'blue'} variant={'solid'}>
-              Sign in
+            <Button onClick={handleLogin} colorScheme={'blue'} variant={'solid'}>
+              Log in
             </Button>
+            <Text color={'blue.500'} textAlign={'center'} onClick={()=>{    navigate('/signup');
+}}>Are you new User?</Text>
           </Stack>
         </Stack>
       </Flex>

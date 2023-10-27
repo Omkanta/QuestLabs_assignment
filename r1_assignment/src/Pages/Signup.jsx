@@ -1,4 +1,3 @@
-'use client'
 
 import {
   Flex,
@@ -18,6 +17,7 @@ import {
 } from '@chakra-ui/react'
 import { useState } from 'react'
 import { ViewIcon, ViewOffIcon } from '@chakra-ui/icons'
+import { useNavigate } from 'react-router-dom';
 
 export default function Signup() {
   const [showPassword, setShowPassword] = useState(false)
@@ -25,6 +25,52 @@ export default function Signup() {
   const [pass,setPass]=useState("");
   const [Fname,setFname]=useState("")
   const [Lname,setLname]=useState("")
+  const navigate = useNavigate();
+
+
+  const handleSignup = () => {
+    const newUser = {
+    Fname,
+    Lname,
+    email,
+    password:pass
+    };
+  
+    fetch('https://rm-mock4-server.onrender.com/users')
+      .then((response) => response.json())
+      .then((users) => {
+        const userExists = false
+        for(let i=0;i<users.length;i++){
+          if(users[i]["email"]==newUser['email']){
+            userExists=true
+          }
+        }
+  
+        if (userExists) {
+          alert('User already exists. Please choose a different username.');
+        } else {
+          fetch('https://rm-mock4-server.onrender.com/users', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(newUser),
+          })
+            .then((response) => response.json())
+            .then(() => {
+              navigate('/')
+              alert('Signup successful! You can now log in.');
+            })
+            .catch((error) => {
+              console.error('Error while signing up:', error);
+            });
+        }
+      })
+      .catch((error) => {
+        console.error('Error while checking existing users:', error);
+      });
+  };
+  
 
   return (
     <Flex
@@ -80,6 +126,7 @@ export default function Signup() {
             </FormControl>
             <Stack spacing={10} pt={2}>
               <Button
+              onClick={handleSignup}
                 loadingText="Submitting"
                 size="lg"
                 bg={'blue.400'}
@@ -92,7 +139,7 @@ export default function Signup() {
             </Stack>
             <Stack pt={6}>
               <Text align={'center'}>
-                Already a user? <Link color={'blue.400'}>Login</Link>
+                Already a user? <Link onClick={()=>{navigate('/')}} color={'blue.400'}>Login</Link>
               </Text>
             </Stack>
           </Stack>
