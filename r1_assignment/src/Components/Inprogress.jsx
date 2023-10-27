@@ -14,7 +14,7 @@ import { Button,
 import { CloseIcon, EditIcon } from '@chakra-ui/icons'
 import React, { useState } from 'react'
 
-export const Inprogress = ({props,HandleAdd}) => {
+export const Inprogress = ({props,HandleAdd,HandleEdit,HandleDelete}) => {
   const { isOpen, onOpen, onClose } = useDisclosure()
   const [new_task_title,setnew_task_title]=useState("")
   const [new_task_desc,setnew_task_desc]=useState("")
@@ -30,10 +30,16 @@ const AddTask=()=>{
   }
   HandleAdd(newObj);
   onClose()
+  setnew_task_desc("")
+  setnew_task_title("")
+}
+
+const HandleUpdate=(el)=>{
+  console.log(el);
 }
   return (<>
-    <Box bg={'grey'} borderRadius={'10px'} p={'2'}>
-      <Text fontWeight={'bold'}>Up-coming</Text>
+    <Box bg={'#c7cccf'} borderRadius={'10px'} p={'2'}>
+      <Text mb={'2'} fontWeight={'bold'}>In progress</Text>
 
       <VStack>
         {props.map((el) => {
@@ -41,10 +47,12 @@ const AddTask=()=>{
             <Box key={el.id} m={'auto'} p={'3'} w={'90%'} borderRadius={'10px'} bg={'white'} mb={'2'}>
               <HStack>
                 <Text fontWeight={'bold'} >{el.title}</Text>
-                <HStack>
-                  <EditIcon />
-                  <CloseIcon color={'red.400'} />
+            {(el.user_mail==user_mail)?<>
+              <HStack>
+              <EditIcon onClick={()=>{HandleUpdate(el)}} />
+                  <CloseIcon onClick={()=>{HandleDelete(el.id)}} color={'red.400'} />
                 </HStack>
+            </>:<>...</>}
               </HStack>
               <Text>{el.description}</Text>
             </Box>

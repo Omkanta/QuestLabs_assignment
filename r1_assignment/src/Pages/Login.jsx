@@ -27,19 +27,21 @@ export default function Login() {
             email,
             password:pass
         };
-      
+      let flag=false
         fetch('https://rm-mock4-server.onrender.com/users')
         .then((response) => response.json())
         .then((users) => {
           for(let i=0;i<users.length;i++){
             if(users[i]["email"]==loginData['email'] && users[i]["password"]==loginData["password"]){
                 localStorage.setItem('user_mail', loginData.email);
+                flag=true;
                 navigate('/dashboard')
                 alert("Login Successfull!!")
-            }else{
-                alert("Please chcek your credentails")
-            }
-          }      
+            }            
+          }    
+          if(!flag){
+            alert("Please chcek your credentails")
+          }  
           })
           .catch((error) => {
             console.error('Error while logging in:', error);

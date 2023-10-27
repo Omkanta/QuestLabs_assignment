@@ -1,10 +1,11 @@
-import { HStack, Text } from '@chakra-ui/react'
+import { Box, Button, HStack, Text } from '@chakra-ui/react'
 import React, { useEffect, useState } from 'react'
 import { Upcoming } from '../Components/Upcoming'
 import { Inprogress } from '../Components/Inprogress'
 import { Toreview } from '../Components/Toreview'
 import { Done } from '../Components/Done'
 import { Tracking } from '../Components/Tracking'
+import { useNavigate } from 'react-router-dom'
 
 export const Dashboard = () => {
   const [data,setData]=useState([])
@@ -14,6 +15,15 @@ export const Dashboard = () => {
   const [done,setdone]=useState([])
   const [tracking,settracking]=useState([])
   const [refresh,setRefresh]=useState(false)
+  const navigate = useNavigate();
+
+
+  const HandleLogout=()=>{
+    localStorage.removeItem("user_mail");
+    alert("Logout Successfull!!")
+    navigate('/')
+
+  }
 
   const HandleAdd=(newObj)=>{
     fetch('https://rm-mock4-server.onrender.com/tasks', {
@@ -31,6 +41,47 @@ export const Dashboard = () => {
       .catch((error) => {
         console.error('Error:', error);
       });
+  }
+
+  const HandleEdit=(updatedObj,id)=>{
+
+fetch(`https://rm-mock4-server.onrender.com/tasks/${id}`, {
+  method: 'PATCH',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  body: JSON.stringify(updatedObj),
+})
+  .then((response) => {
+    if (response.ok) {
+      setRefresh(!refresh)
+      alert('Task updated successfully.');
+    } else {
+      console.error('Error in updating task.');
+    }
+  })
+  .catch((error) => {
+    console.error('Network error:', error);
+  });
+  }
+
+  const HandleDelete=(id)=>{
+
+fetch(`https://rm-mock4-server.onrender.com/tasks/${id}`, {
+  method: 'DELETE',
+})
+  .then((response) => {
+    if (response.ok) {
+      setRefresh(!refresh)
+      alert('Task deleted successfully.');
+    } else {
+      alert('Error in deleting task.');
+    }
+  })
+  .catch((error) => {
+    console.error('Network error:', error);
+  });
+
   }
 
   useEffect(()=>{
@@ -55,15 +106,18 @@ export const Dashboard = () => {
     )
 
   },[refresh])
-  console.log(done);
+  console.log(data);
   return (<>
     <Text mt={'5'} textAlign={'center'} fontSize={'30'} fontWeight={'semibold'}>DashBoard</Text>
+    <Box display={'flex'} justifyContent={'flex-end'}>
+      <Button mr={'10'} mb={'5'} bg={'red.500'} color={'white'} _hover={{bg:"red.600"}} onClick={HandleLogout}>Logout</Button>
+    </Box>
     <HStack justifyContent={'space-evenly'}>
-      <Upcoming props={upcoming} HandleAdd={HandleAdd} />
-      <Inprogress props={inprogress} HandleAdd={HandleAdd} />
-      <Toreview props={review} HandleAdd={HandleAdd} />
-      <Done props={done} HandleAdd={HandleAdd} />
-      <Tracking props={tracking} HandleAdd={HandleAdd} />
+      <Upcoming props={upcoming} HandleAdd={HandleAdd} HandleEdit={HandleEdit} HandleDelete={HandleDelete}/>
+      <Inprogress props={inprogress} HandleAdd={HandleAdd} HandleEdit={HandleEdit} HandleDelete={HandleDelete} />
+      <Toreview props={review} HandleAdd={HandleAdd} HandleEdit={HandleEdit} HandleDelete={HandleDelete} />
+      <Done props={done} HandleAdd={HandleAdd} HandleEdit={HandleEdit} HandleDelete={HandleDelete} />
+      <Tracking props={tracking} HandleAdd={HandleAdd} HandleEdit={HandleEdit} HandleDelete={HandleDelete} />
     </HStack>
   </>)
 }
